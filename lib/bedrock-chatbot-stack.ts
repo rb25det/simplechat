@@ -147,6 +147,11 @@ export class BedrockChatbotStack extends cdk.Stack {
       ],
       resources: ['*']
     }));
+    const requestsLayer = new lambda.LayerVersion(this, 'RequestsLayer', { //lambdaにrequestsレイヤーを定義
+      code: lambda.Code.fromAsset(path.join(__dirname, '../lambda-layer')),
+      compatibleRuntimes: [lambda.Runtime.PYTHON_3_10],
+      description: 'Layer containing requests module',
+    });
 
     // Lambda function
     const chatFunction = new lambda.Function(this, 'ChatFunction', {
@@ -156,6 +161,7 @@ export class BedrockChatbotStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(30),
       memorySize: 128,
       role: lambdaRole,
+      layers: [requestsLayer],//追加
       environment: {
         MODEL_ID: modelId,
       },
